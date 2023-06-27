@@ -19,21 +19,58 @@ package sbu.cs;
     Use the tests provided in the test folder to ensure your code works correctly.
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class FindMultiples
 {
-
-    // TODO create the required multithreading class/classes using your preferred method.
-
-
+    public static Set<Integer> desirable;
+    public static Long sum;
+    public static class divisible implements Runnable
+    {
+        private final int n;
+        private final int step;
+        public divisible(int n, int step) {
+            this.n = n;
+            this.step = step;
+        }
+        public static synchronized void addSum(int i)
+        {
+            if(!desirable.contains(i)) {
+                sum += i;
+                desirable.add(i);
+            }
+        }
+        @Override
+        public void run() {
+            for(int i = step ; i <= n ; i+=step)
+            {
+                addSum(i);
+            }
+        }
+    }
     /*
     The getSum function should be called at the start of your program.
     New Threads and tasks should be created here.
     */
-    public int getSum(int n) {
-        int sum = 0;
+    public Long getSum(int n) {
+        desirable = new HashSet<>();
+        sum=0L;
+        Thread thread1 = new Thread(new divisible(n,3));
+        Thread thread2 = new Thread(new divisible(n,5));
+        Thread thread3 = new Thread(new divisible(n,7));
+        thread3.start();
+        thread2.start();
+        thread1.start();
 
-        // TODO
-
+        try {
+            thread1.join();
+            thread2.join();
+            thread3.join();
+        } catch (InterruptedException e)
+        {
+            throw new RuntimeException(e);
+        }
         return sum;
     }
 
